@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "campus-l3-dev-stack-test-fanny"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-9eb3wbkgn64o"
+s3_prefix = "campus-l3-dev-stack-test-fanny"
+region = "eu-west-2"
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "AppName=\"campus-l3-dev-app-fanny\" Stage=\"dev\""
+image_repositories = []

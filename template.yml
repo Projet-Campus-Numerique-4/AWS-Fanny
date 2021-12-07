@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09' 
+Transform: 'AWS::Serverless-2016-10-31' 
+
+Parameters: 
+  AppName: 
+    Type: String 
+    Default: campus-app 
+  Stage: 
+    Type: String 
+    Default: dev 
+
+Resources: 
+  Api: 
+    Type: AWS::Serverless::Api 
+    Properties: 
+      Cors: 
+        AllowMethods: "'POST, GET, OPTIONS, PUT'" 
+        AllowHeaders: "'Accept, Content-Type, Content-Length, Authorization, X-Api-Key'" 
+        AllowOrigin: "'*'" 
+        MaxAge: "'600'" 
+      Name: 
+        Fn::Sub: ${AppName}-api-${Stage} 
+      StageName: !Ref Stage
+      DefinitionBody: 
+        Fn::Transform: 
+          Name: AWS::Include 
+          Parameters: 
+            Location: specification/openapi.yml
+
+  GetDevices: 
+    Type: AWS::Serverless::Function 
+    Properties: 
+      Tracing: Active 
+      Runtime: python3.8 
+      PackageType: Zip 
+      FunctionName: 
+        Fn::Sub: ${AppName}-get-devices-${Stage} 
+      Description: Get the list of devices 
+      CodeUri: ./src/get
+      Handler: devices.get_devices
+
+  # GetDevice: 
+  #   Type: AWS::Serverless::Function 
+  #   Properties: 
+  #     Tracing: Active 
+  #     Runtime: python3.8 
+  #     PackageType: Zip 
+  #     FunctionName: 
+  #       Fn::Sub: ${AppName}-get-device-${Stage} 
+  #     Description: Get a single device by id
+  #     CodeUri: ./src/get
+  #     Handler: device.get_device
+
+
+  ApiRole: 
+    Type: AWS::IAM::Role 
+    Properties: 
+      Path: 
+        Fn::Sub: /${Stage}/${AppName}/serviceRoles/ 
+      RoleName: 
+        Fn::Sub: ${AppName}-api-execution-role-${Stage} 
+      AssumeRolePolicyDocument: 
+        Version: '2012-10-17' 
+        Statement: 
+          - Effect: Allow 
+            Principal: 
+              Service: 
+                - apigateway.amazonaws.com 
+            Action: sts:AssumeRole 
+      Policies: 
+        - PolicyName: 
+            Fn::Sub: ${AppName}-api-execution-role-policy-${Stage} 
+          PolicyDocument: 
+            Version: '2012-10-17' 
+            Statement: 
+              - Effect: Allow 
+                Action: 
+                  - lambda:InvokeFunction 
+                Resource: 
+                  Fn::Sub: ${GetDevices.Arn}
