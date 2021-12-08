@@ -78,3 +78,42 @@ Resources:
                   - lambda:InvokeFunction 
                 Resource: 
                   Fn::Sub: ${GetDevices.Arn}
+
+  deviceTable: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - 
+          AttributeName: "deviceId"
+          AttributeType: "N"
+        - 
+          AttributeName: "deviceName"
+          AttributeType: "S"
+        - 
+          AttributeName: "deviceType"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "deviceId"
+          KeyType: "HASH"
+      
+      GlobalSecondaryIndexes:
+        -
+          IndexName: "deviceProperties"
+          KeySchema:
+            -
+              AttributeName: "deviceName"
+              KeyType: "HASH"
+            -
+              AttributeName: "deviceType"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL 
+          ProvisionedThroughput: 
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: "campus-l3-dev-app-fanny-table-device-dev"
