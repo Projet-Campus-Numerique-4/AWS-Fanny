@@ -1,7 +1,11 @@
 import json
+import os
+
+# Get environment variable
+DEVICES_TABLE = os.environ['DEVICES_TABLE']
 
 def get_devices(context, event): 
-    print("get_devices %s", context)
+    print(DEVICES_TABLE)
     return { 
         "statusCode": 400, 
         "body": json.dumps([

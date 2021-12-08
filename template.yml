@@ -8,6 +8,9 @@ Parameters:
   Stage: 
     Type: String 
     Default: dev 
+  DeviceTableName:
+    Type: String 
+    Default: "campus-l3-dev-app-fanny-table-device-dev"
 
 Resources: 
   Api: 
@@ -38,6 +41,10 @@ Resources:
       Description: Get the list of devices 
       CodeUri: ./src/get
       Handler: devices.get_devices
+      Environment:
+        Variables:
+          DEVICES_TABLE:
+            Fn::Sub: ${DeviceTableName}
 
   # GetDevice: 
   #   Type: AWS::Serverless::Function 
@@ -95,25 +102,29 @@ Resources:
       KeySchema: 
         - 
           AttributeName: "deviceId"
+          KeyType: "RANGE"
+        -
+          AttributeName: "deviceName"
           KeyType: "HASH"
       
-      GlobalSecondaryIndexes:
-        -
-          IndexName: "deviceProperties"
-          KeySchema:
-            -
-              AttributeName: "deviceName"
-              KeyType: "HASH"
-            -
-              AttributeName: "deviceType"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL 
-          ProvisionedThroughput: 
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
+      # GlobalSecondaryIndexes:
+      #   -
+      #     IndexName: "deviceProperties"
+      #     KeySchema:
+      #       -
+      #         AttributeName: "deviceName"
+      #         KeyType: "HASH"
+      #       -
+      #         AttributeName: "deviceType"
+      #         KeyType: "HASH"
+      #     Projection:
+      #       ProjectionType: ALL 
+      #     ProvisionedThroughput: 
+      #       ReadCapacityUnits: "5"
+      #       WriteCapacityUnits: "5"
 
       ProvisionedThroughput: 
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: "campus-l3-dev-app-fanny-table-device-dev"
+      TableName: 
+        Fn::Sub: ${DeviceTableName}
